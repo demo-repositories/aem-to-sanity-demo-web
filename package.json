@@ -1,0 +1,25 @@
+{
+  "name": "aem-to-sanity-demo-web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Demo frontends (Vite + React 19 preview and Hydrogen storefront) for content migrated by aem-to-sanity.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm -F web dev",
+    "dev:web": "pnpm -F web dev",
+    "dev:storefront": "pnpm -F storefront dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^19.2.14",
+      "react": "^19.2.5",
+      "react-dom": "^19.2.5"
+    }
+  }
+}
