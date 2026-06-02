@@ -1,5 +1,6 @@
 import type {
   ColorCarouselBlock,
+  ContainerBlock,
   ExpanderBlock,
   FaqHubBlock,
   FeatureCardBlock,
@@ -13,10 +14,15 @@ import type {
   QuoteBlock,
   ResourcesColumnListBlock,
   SectionHeadlineBlock,
+  StoreBannerBlock,
+  StoreDetailsBlock,
+  StoreReviewsBlock,
+  StoreStoreCarouselBlock,
   UnknownBlock as UnknownBlockType,
   VariableColumnBlock,
 } from "../types.ts";
 import { ColorCarousel } from "./ColorCarousel.tsx";
+import { Container } from "./Container.tsx";
 import { Expander } from "./Expander.tsx";
 import { FaqHub } from "./FaqHub.tsx";
 import { FeatureCard } from "./FeatureCard.tsx";
@@ -30,6 +36,10 @@ import { Promo } from "./Promo.tsx";
 import { Quote } from "./Quote.tsx";
 import { ResourcesColumnList } from "./ResourcesColumnList.tsx";
 import { SectionHeadline } from "./SectionHeadline.tsx";
+import { StoreBanner } from "./StoreBanner.tsx";
+import { StoreDetails } from "./StoreDetails.tsx";
+import { StoreReviews } from "./StoreReviews.tsx";
+import { StoreStoreCarousel } from "./StoreStoreCarousel.tsx";
 import { UnknownBlock } from "./UnknownBlock.tsx";
 import { VariableColumn } from "./VariableColumn.tsx";
 
@@ -42,7 +52,18 @@ import { VariableColumn } from "./VariableColumn.tsx";
  */
 type AnyBlock = { _type: string; _key: string; [key: string]: unknown };
 
-export function Block({ block }: { block: AnyBlock }) {
+/**
+ * Page context threaded to blocks that need document-level data the
+ * block itself doesn't carry. `storeDetails` is the case today: the
+ * migrated block holds only the CTA link, so the store name / locality
+ * are derived from the page title + slug.
+ */
+export interface PageContext {
+  title?: string;
+  slug?: string;
+}
+
+export function Block({ block, page }: { block: AnyBlock; page?: PageContext }) {
   switch (block._type) {
     case "promo":
       return <Promo block={block as unknown as PromoBlock} />;
@@ -76,6 +97,16 @@ export function Block({ block }: { block: AnyBlock }) {
       return <FeatureCard block={block as unknown as FeatureCardBlock} />;
     case "photoLayout":
       return <PhotoLayout block={block as unknown as PhotoLayoutBlock} />;
+    case "storeDetails":
+      return <StoreDetails block={block as unknown as StoreDetailsBlock} page={page} />;
+    case "container":
+      return <Container block={block as unknown as ContainerBlock} />;
+    case "storeReviews":
+      return <StoreReviews block={block as unknown as StoreReviewsBlock} />;
+    case "storeStoreCarousel":
+      return <StoreStoreCarousel block={block as unknown as StoreStoreCarouselBlock} />;
+    case "storeBanner":
+      return <StoreBanner block={block as unknown as StoreBannerBlock} />;
     default:
       return <UnknownBlock block={block as UnknownBlockType} />;
   }

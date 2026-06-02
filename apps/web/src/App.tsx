@@ -4,10 +4,14 @@ import { sanity } from "./sanity.ts";
 import type { PageDoc } from "./types.ts";
 
 /**
- * Slug-based routing without a router. The path's first non-empty segment
- * becomes the slug; `/` falls back to `home`. Trailing segments and
- * query strings are ignored. Listens to `popstate` so back/forward
- * updates the page without a hard reload.
+ * Slug-based routing without a router. The path's LAST non-empty segment
+ * becomes the slug; `/` falls back to `home`. Using the last segment
+ * (rather than the first) lets nested marketing paths resolve to the
+ * single-token slug Sanity stores — e.g. `/stores/hoover-al-352441215-0044`
+ * resolves the store doc whose `slug.current` is `hoover-al-352441215-0044`,
+ * while `/home` and `/stores` still resolve as before (every slug in the
+ * dataset is a single token). Query strings are ignored. Listens to
+ * `popstate` so back/forward updates the page without a hard reload.
  *
  * Page document types: the generic `page` is the fallback for tenants
  * that don't declare page-shells; tenants with `aem-page-components.json`
@@ -29,8 +33,9 @@ const PAGE_QUERY = `*[slug.current == $slug && defined(pageBuilder)][0]{
 }`;
 
 function slugFromPath(pathname: string): string {
-  const first = pathname.split("/").filter(Boolean)[0];
-  return first ? decodeURIComponent(first) : "home";
+  const segments = pathname.split("/").filter(Boolean);
+  const last = segments[segments.length - 1];
+  return last ? decodeURIComponent(last) : "home";
 }
 
 export function App() {
@@ -81,7 +86,13 @@ export function App() {
       <main>
         {(page.pageBuilder ?? []).map((block) => {
           const b = block as { _key: string; _type: string; [k: string]: unknown };
-          return <Block key={b._key} block={b} />;
+          return (
+            <Block
+              key={b._key}
+              block={b}
+              page={{ title: page.title, slug: page.slug?.current }}
+            />
+          );
         })}
       </main>
       <Footer />
@@ -111,6 +122,9 @@ function Header({ title }: { title?: string }) {
           </a>
           <a href="/faq" className="hover:text-[color:var(--color-primary)] transition-colors">
             FAQ
+          </a>
+          <a href="/stores" className="hover:text-[color:var(--color-primary)] transition-colors">
+            Stores
           </a>
         </nav>
         {title ? (

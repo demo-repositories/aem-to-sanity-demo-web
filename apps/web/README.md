@@ -25,8 +25,14 @@ Env plumbing: `vite.config.ts` loads `apps/web/.env` first, then falls back to t
   - `VariableColumn` — multi-column storytelling block, nested richtext + CTAs.
   - `Hr` — tonal spacer (never a 1px line — DESIGN.md §2 "no-line rule").
   - `UnknownBlock` — visible placeholder for block types without a renderer yet.
-- `src/blocks/index.tsx` — dispatcher keyed on `_type`.
-- `src/App.tsx` — fetches the home doc (`_id == "content.aem-integration.us.en.home"`), renders header + pageBuilder + footer.
+  - Store details template (`storeDetailsPageTemplatePage`, e.g. `/stores/hoover-al-352441215-0044`):
+    - `StoreDetails` — store-locator panel. The migrated block carries only `bookAppointmentsButtonLink`; the store name / locality / ZIP / store number are derived from the page title + slug (`<city>-<state>-<zip>-<storeNumber>`). Live address/phone/hours are served by the locator service on production, so we render a labelled slot rather than fabricating them.
+    - `Container` — generic AEM wrapper; on store pages it holds the long-form SEO copy (rich text + category links).
+    - `StoreReviews` — placeholder for the runtime reviews widget (same approach as `Gallery` / `ProductCarousel`).
+    - `StoreStoreCarousel` — the "what you'll find here" category cards (image + headline + blurb + CTA).
+    - `StoreBanner` — thin full-width partner banner; reuses the responsive `bgImages[]` shape from `Promo`.
+- `src/blocks/index.tsx` — dispatcher keyed on `_type`. Threads an optional `page` context (`{ title, slug }`) to blocks that need document-level data the block itself doesn't carry (today: `storeDetails`).
+- `src/App.tsx` — fetches the doc whose `slug.current` matches the URL's **last** path segment (so `/stores/<slug>` resolves the store doc), renders header + pageBuilder + footer.
 
 ## Extending
 

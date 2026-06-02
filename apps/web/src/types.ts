@@ -395,6 +395,108 @@ export interface UnknownBlock extends BaseBlock {
   [key: string]: unknown;
 }
 
+/**
+ * `storeDetails` — the store-locator panel at the top of a store
+ * details page. On production this component is hydrated at runtime
+ * from the store-locator service keyed on the store number in the URL,
+ * so the migrated block carries only the authored `bookAppointmentsButtonLink`.
+ * The renderer derives the display name / locality / store number from
+ * the page title + slug (the slug encodes `<city>-<state>-<zip>-<storeNo>`).
+ */
+export interface StoreDetailsBlock extends BaseBlock {
+  _type: "storeDetails";
+  bookAppointmentsButtonLink?: string;
+}
+
+/**
+ * AEM `content` widget as it appears inside a `container` — a styled
+ * rich-text run. `text` holds the Portable Text; the rest are AEM
+ * presentation hints (font sizing, color token, alignment) we honor
+ * loosely.
+ */
+export interface ContainerContentItem {
+  _key: string;
+  _type: "content";
+  text?: PortableTextBlock[];
+  align?: "left" | "center" | "right" | string;
+  uppercase?: boolean;
+  fontSize?: number;
+  color?: string;
+}
+
+/**
+ * AEM `headerOne` heading config inside a container. Carries styling
+ * (font size/weight/color) and, when authored, a `text` string. On the
+ * store pages it's typically empty — the heading lives in the body copy
+ * instead — so the renderer only emits a heading when `text` is present.
+ */
+export interface ContainerHeaderItem {
+  _key: string;
+  _type: "headerOne";
+  text?: string;
+  align?: "left" | "center" | "right" | string;
+  uppercase?: string | boolean;
+}
+
+/**
+ * AEM `container` — generic layout wrapper. On store pages it holds the
+ * SEO body copy: an optional `headerOne[]` heading and a `content[]`
+ * stack of styled rich-text runs.
+ */
+export interface ContainerBlock extends BaseBlock {
+  _type: "container";
+  headerOne?: ContainerHeaderItem[];
+  content?: ContainerContentItem[];
+}
+
+/**
+ * `storeReviews` — third-party reviews widget (hydrated client-side on
+ * production from the reviews service). The migrated block carries no
+ * data, so the renderer shows a labeled placeholder consistent with the
+ * other runtime-fed widgets (gallery / product carousel).
+ */
+export interface StoreReviewsBlock extends BaseBlock {
+  _type: "storeReviews";
+}
+
+export interface StoreCarouselItem {
+  _key: string;
+  headline?: string;
+  columnText?: PortableTextBlock[];
+  ctaText?: string;
+  ctaLink?: string;
+  ctaType?: "button" | "link" | string;
+  fileReference?: SanityImageRef;
+  fileReferenceAemPath?: string;
+}
+
+/**
+ * `storeStoreCarousel` — the "what you'll find here" category cards on a
+ * store page. Each item is an image + headline + blurb + CTA.
+ */
+export interface StoreStoreCarouselBlock extends BaseBlock {
+  _type: "storeStoreCarousel";
+  headline1?: string;
+  headline2?: string;
+  carouselItems?: StoreCarouselItem[];
+  removeTopPadding?: boolean;
+  removeBottomPadding?: boolean;
+}
+
+/**
+ * `storeBanner` — thin full-width promotional banner (partner/marketing
+ * art baked into the image). Same responsive `bgImages[]` shape as
+ * `promo`; `description` is usually a placeholder dot.
+ */
+export interface StoreBannerBlock extends BaseBlock {
+  _type: "storeBanner";
+  bgImages?: PromoBgImage[];
+  description?: PortableTextBlock[];
+  link?: string;
+  align?: "left" | "center" | "right" | string;
+  theme?: string;
+}
+
 export type PageBlock =
   | PromoBlock
   | HrBlock
@@ -410,7 +512,12 @@ export type PageBlock =
   | ResourcesColumnListBlock
   | SectionHeadlineBlock
   | FeatureCardBlock
-  | PhotoLayoutBlock;
+  | PhotoLayoutBlock
+  | StoreDetailsBlock
+  | ContainerBlock
+  | StoreReviewsBlock
+  | StoreStoreCarouselBlock
+  | StoreBannerBlock;
 
 export interface PageDoc {
   _id: string;
